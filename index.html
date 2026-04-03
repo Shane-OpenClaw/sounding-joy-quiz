@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sounding Joy Quiz - How Much Do You Know?</title>
+    <meta property="og:title" content="How Much Do You Know About Hearing Loss?" />
+    <meta property="og:description" content="Take the Sounding Joy quiz and test your knowledge about hearing loss and the kids who need our help!" />
+    <meta property="og:type" content="website" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #0a1628 0%, #1a2a4a 50%, #0d3b66 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 10px;
+        }
+
+        .quiz-container {
+            background: white;
+            border-radius: 24px;
+            padding: 25px;
+            max-width: 700px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: visible;
+            margin: 10px 0 40px 0;
+        }
+
+        .quiz-container::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, #f4a261, #e76f51, #2a9d8f);
+            border-radius: 24px 24px 0 0;
+        }
+
+        .header { text-align: center; margin-bottom: 25px; }
+        .header h1 { font-size: 1.8em; color: #0d3b66; margin-bottom: 5px; }
+        .header .subtitle { color: #666; font-size: 0.95em; font-weight: 300; }
+
+        .progress-bar { background: #e8e8e8; border-radius: 10px; height: 10px; margin-bottom: 25px; overflow: hidden; }
+        .progress-fill { background: linear-gradient(90deg, #f4a261, #2a9d8f); height: 100%; border-radius: 10px; transition: width 0.5s ease; width: 0%; }
+        .progress-text { text-align: center; color: #888; font-size: 0.8em; margin-bottom: 8px; }
+
+        .question-card { display: none; }
+        .question-card.active { display: block; animation: fadeIn 0.4s ease; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .question-number {
+            background: linear-gradient(135deg, #e76f51, #f4a261);
+            color: white; display: inline-block; padding: 5px 14px;
+            border-radius: 20px; font-size: 0.8em; font-weight: 600; margin-bottom: 12px;
+        }
+
+        .question-type {
+            background: #f0f0f0; color: #666; display: inline-block;
+            padding: 3px 10px; border-radius: 12px; font-size: 0.7em; margin-left: 8px;
+        }
+
+        .question-text { font-size: 1.15em; color: #0d3b66; margin-bottom: 20px; line-height: 1.5; font-weight: 500; }
+
+        .options { display: flex; flex-direction: column; gap: 10px; }
+
+        .option-btn {
+            background: #f8f9fa; border: 2px solid #e0e0e0; border-radius: 14px;
+            padding: 14px 18px; font-size: 0.95em; font-family: 'Poppins', sans-serif;
+            cursor: pointer; transition: all 0.3s ease; text-align: left; color: #333;
+        }
+        .option-btn:hover { border-color: #2a9d8f; background: #f0faf8; transform: translateX(5px); }
+        .option-btn.correct { border-color: #2a9d8f; background: #e8f8f0; color: #1a7a5a; font-weight: 600; }
+        .option-btn.incorrect { border-color: #e76f51; background: #fdf0ef; color: #c0392b; }
+        .option-btn:disabled { cursor: default; transform: none; }
+
+        .feedback {
+            margin-top: 18px; padding: 16px; border-radius: 14px;
+            font-size: 0.9em; display: none; line-height: 1.5;
+        }
+        .feedback.correct { background: #e8f8f0; border: 2px solid #2a9d8f; color: #1a6b50; display: block; }
+        .feedback.incorrect { background: #fdf0ef; border: 2px solid #e76f51; color: #b5452e; display: block; }
+
+        .nav-buttons {
+            display: flex; gap: 10px; margin-top: 20px; margin-bottom: 20px;
+        }
+        .next-btn {
+            background: linear-gradient(135deg, #0d3b66, #1a2a4a); color: white; border: none;
+            border-radius: 14px; padding: 15px 40px; font-size: 1em; font-family: 'Poppins', sans-serif;
+            font-weight: 600; cursor: pointer; transition: all 0.3s ease; display: none; flex: 1;
+        }
+        .next-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(13, 59, 102, 0.3); }
+        .back-btn {
+            background: white; color: #0d3b66; border: 2px solid #0d3b66;
+            border-radius: 14px; padding: 15px 20px; font-size: 1em; font-family: 'Poppins', sans-serif;
+            font-weight: 600; cursor: pointer; transition: all 0.3s ease; display: none;
+        }
+        .back-btn:hover { background: #f0f4f8; transform: translateY(-2px); }
+
+        @media (max-width: 768px) {
+            .quiz-container { padding: 18px; border-radius: 16px; }
+            .header h1 { font-size: 1.4em; }
+            .header { margin-bottom: 15px; }
+            .question-text { font-size: 1.05em; margin-bottom: 16px; }
+            .option-btn { padding: 12px 15px; font-size: 0.9em; }
+            .options { gap: 8px; }
+            .feedback { font-size: 0.85em; padding: 12px; }
+        }
+
+        /* Start Screen */
+        .start-screen { text-align: center; padding: 20px 0; }
+        .start-screen h1 { font-size: 2em; color: #0d3b66; margin-bottom: 8px; }
+        .start-screen .tagline { color: #666; font-size: 1.05em; margin-bottom: 25px; font-weight: 300; }
+        .start-screen .description { color: #555; line-height: 1.7; margin-bottom: 30px; font-size: 0.9em; }
+        .start-screen .stat-box {
+            background: linear-gradient(135deg, #f0faf8, #e8f4f0); border: 2px solid #2a9d8f;
+            border-radius: 16px; padding: 18px; margin-bottom: 25px; text-align: center;
+        }
+        .start-screen .stat-box .stat-number { font-size: 2em; font-weight: 800; color: #2a9d8f; }
+        .start-screen .stat-box .stat-label { font-size: 0.85em; color: #555; }
+
+        .start-btn {
+            background: linear-gradient(135deg, #e76f51, #f4a261); color: white; border: none;
+            border-radius: 14px; padding: 16px 50px; font-size: 1.1em; font-family: 'Poppins', sans-serif;
+            font-weight: 600; cursor: pointer; transition: all 0.3s ease;
+        }
+        .start-btn:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(231, 111, 81, 0.35); }
+
+        /* Results Screen */
+        .results { display: none; text-align: center; }
+        .results.active { display: block; animation: fadeIn 0.5s ease; }
+
+        .score-circle {
+            width: 160px; height: 160px; border-radius: 50%;
+            background: linear-gradient(135deg, #2a9d8f, #0d3b66);
+            display: flex; align-items: center; justify-content: center;
+            margin: 25px auto; box-shadow: 0 10px 30px rgba(42, 157, 143, 0.3);
+        }
+        .score-inner {
+            width: 130px; height: 130px; border-radius: 50%; background: white;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .score-number { font-size: 2.8em; font-weight: 700; color: #0d3b66; line-height: 1; }
+        .score-label { font-size: 0.85em; color: #888; }
+        .score-message { font-size: 1.2em; color: #0d3b66; margin: 15px 0; font-weight: 600; }
+        .score-subtitle { color: #666; margin-bottom: 25px; line-height: 1.6; font-size: 0.9em; }
+
+        .cta-section { margin: 25px 0; }
+        .cta-section h3 { color: #0d3b66; margin-bottom: 15px; font-size: 1.1em; }
+
+        .cta-btn {
+            display: inline-block; padding: 12px 28px; border-radius: 12px;
+            font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 0.9em;
+            text-decoration: none; margin: 6px; transition: all 0.3s ease; cursor: pointer; border: none;
+        }
+        .cta-donate {
+            background: linear-gradient(135deg, #e76f51, #f4a261); color: white;
+        }
+        .cta-donate:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(231, 111, 81, 0.3); }
+        .cta-website {
+            background: linear-gradient(135deg, #0d3b66, #1a2a4a); color: white;
+        }
+        .cta-website:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(13, 59, 102, 0.3); }
+
+        .social-links { margin: 20px 0; }
+        .social-links a {
+            display: inline-block; margin: 0 8px; padding: 10px 16px;
+            background: #f0f0f0; border-radius: 10px; text-decoration: none;
+            color: #333; font-size: 0.85em; font-weight: 500; transition: all 0.2s;
+        }
+        .social-links a:hover { background: #e0e0e0; transform: translateY(-2px); }
+
+        .share-btn {
+            background: linear-gradient(135deg, #2a9d8f, #1a7a6a); color: white; border: none;
+            border-radius: 12px; padding: 14px 35px; font-size: 0.95em; font-family: 'Poppins', sans-serif;
+            font-weight: 600; cursor: pointer; margin: 10px 6px; transition: all 0.3s ease;
+        }
+        .share-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(42, 157, 143, 0.3); }
+
+        .restart-btn {
+            background: white; color: #0d3b66; border: 2px solid #0d3b66;
+            border-radius: 12px; padding: 12px 30px; font-size: 0.9em; font-family: 'Poppins', sans-serif;
+            font-weight: 600; cursor: pointer; margin: 10px 6px; transition: all 0.3s ease;
+        }
+        .restart-btn:hover { background: #f0f4f8; }
+
+        .answer-review { margin-top: 25px; text-align: left; }
+        .answer-review h3 { margin-bottom: 12px; color: #0d3b66; }
+        .review-item { background: #f8f9fa; border-radius: 12px; padding: 12px 15px; margin-bottom: 8px; border-left: 4px solid #2a9d8f; }
+        .review-item.wrong { border-left-color: #e76f51; }
+        .review-q { font-weight: 600; color: #333; font-size: 0.85em; margin-bottom: 3px; }
+        .review-a { font-size: 0.8em; color: #666; }
+        .review-a span { font-weight: 600; }
+
+        .share-toast {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+            background: #2a9d8f; color: white; padding: 12px 24px; border-radius: 10px;
+            font-family: 'Poppins', sans-serif; font-size: 0.9em; display: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 100;
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <!-- START SCREEN -->
+        <div class="start-screen" id="startScreen">
+            <h1>Sounding Joy</h1>
+            <p class="tagline">How Much Do You Know?</p>
+            <div class="stat-box">
+                <div class="stat-number">Every Child Deserves to Hear</div>
+                <div class="stat-label">Sounding Joy provides hearing aids to children whose families can't afford them</div>
+            </div>
+            <p class="description">
+                Test your knowledge about hearing loss, the children who need our help, and how Sounding Joy is changing lives in Tampa Bay — one hearing aid at a time.
+            </p>
+            <button class="start-btn" onclick="startQuiz()">Take the Quiz</button>
+        </div>
+
+        <!-- QUIZ SECTION -->
+        <div id="quizSection" style="display:none;">
+            <div class="header">
+                <h1>Sounding Joy Quiz</h1>
+                <div class="subtitle">Test Your Knowledge</div>
+            </div>
+            <div class="progress-text" id="progressText">Question 1 of 10</div>
+            <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+            <div id="questionsContainer"></div>
+            <div class="nav-buttons">
+                <button class="back-btn" id="backBtn" onclick="prevQuestion()">Back</button>
+                <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Next Question</button>
+            </div>
+        </div>
+
+        <!-- RESULTS SCREEN -->
+        <div class="results" id="resultsScreen">
+            <div class="header">
+                <h1>Quiz Complete!</h1>
+            </div>
+            <div class="score-circle">
+                <div class="score-inner">
+                    <div class="score-number" id="scoreNumber">0</div>
+                    <div class="score-label">out of 10</div>
+                </div>
+            </div>
+            <div class="score-message" id="scoreMessage"></div>
+            <div class="score-subtitle" id="scoreSubtitle"></div>
+
+            <div class="cta-section">
+                <h3>Help a Child Hear the World</h3>
+                <a class="cta-btn cta-donate" href="https://soundingjoy.org/donate/" target="_blank">Donate Now</a>
+                <a class="cta-btn cta-website" href="https://soundingjoy.org" target="_blank">Visit SoundingJoy.org</a>
+            </div>
+
+            <div class="social-links">
+                <a href="https://www.instagram.com/soundingjoygiving/" target="_blank">Instagram</a>
+                <a href="https://www.facebook.com/SoundingJoyGiving/" target="_blank">Facebook</a>
+                <a href="https://www.linkedin.com/company/soundingjoy/" target="_blank">LinkedIn</a>
+            </div>
+
+            <button class="share-btn" onclick="shareResults()">Share Your Score</button>
+            <button class="restart-btn" onclick="restartQuiz()">Try Again</button>
+
+            <div class="answer-review" id="answerReview"></div>
+        </div>
+    </div>
+
+    <div class="share-toast" id="shareToast">Score copied! Share it with friends.</div>
+
+    <script>
+        const questions = [
+            {
+                type: "multiple",
+                question: "How many children out of every 1,000 are born with hearing loss in one or both ears?",
+                options: ["1 in 1,000", "3 in 1,000", "5 in 1,000", "10 in 1,000"],
+                correct: 1,
+                feedback_correct: "That's right! 3 in every 1,000 children are born with hearing loss. In Tampa Bay alone, that means between 1,845 and 2,767 children are affected.",
+                feedback_incorrect: "It's 3 in 1,000. In Tampa Bay alone, that means between 1,845 and 2,767 children are living with hearing loss."
+            },
+            {
+                type: "multiple",
+                question: "How much can a single pair of children's hearing aids cost?",
+                options: ["$200 - $500", "$500 - $1,000", "$2,000 - $6,000", "$10,000 - $15,000"],
+                correct: 2,
+                feedback_correct: "Correct! Hearing aids can cost $2,000 to $6,000 per pair, and most major insurance plans don't cover them. That's a huge barrier for families.",
+                feedback_incorrect: "Hearing aids cost $2,000 to $6,000 per pair — and most insurance plans don't cover them. That's why organizations like Sounding Joy are so important."
+            },
+            {
+                type: "multiple",
+                question: "At what age did Sounding Joy founder Christy Vogel discover she was hard of hearing?",
+                options: ["Age 3", "Age 7", "Age 11", "Age 18"],
+                correct: 2,
+                feedback_correct: "Yes! Christy discovered her hearing loss at age 11 through a routine school hearing test. She had likely been hearing impaired since birth and had taught herself to read lips without realizing it.",
+                feedback_incorrect: "Christy was 11 years old when a routine school hearing test revealed her hearing loss. She had likely been affected since birth and had unknowingly taught herself to read lips."
+            },
+            {
+                type: "truefalse",
+                question: "True or False: Children with untreated hearing loss are more than five times as likely to attempt suicide.",
+                options: ["True", "False"],
+                correct: 0,
+                feedback_correct: "Sadly, this is true. Untreated hearing loss can lead to isolation, depression, and tragic outcomes. Early intervention with hearing aids can change the trajectory of a child's life.",
+                feedback_incorrect: "Unfortunately, this is true. Untreated hearing loss leads to isolation and depression, making children more than 5x as likely to attempt suicide. That's why early access to hearing aids is so critical."
+            },
+            {
+                type: "multiple",
+                question: "Where is Sounding Joy based?",
+                options: ["Miami, Florida", "Orlando, Florida", "St. Petersburg, Florida", "Jacksonville, Florida"],
+                correct: 2,
+                feedback_correct: "That's right! Sounding Joy is based in St. Petersburg, Florida, serving children across the Tampa Bay area including Hillsborough, Pinellas, and now expanding to Sarasota.",
+                feedback_incorrect: "Sounding Joy is based in St. Petersburg, Florida! They serve the Tampa Bay area and are expanding across the Suncoast region."
+            },
+            {
+                type: "truefalse",
+                question: "True or False: Christy Vogel was honored as a Tampa Bay Lightning Community Hero and received a $50,000 donation.",
+                options: ["True", "False"],
+                correct: 0,
+                feedback_correct: "True! On February 17, 2024, during a Lightning vs. Panthers game, Christy was recognized as a Community Hero. She donated the $50,000 to Sounding Joy and The Rotary Club of Tampa.",
+                feedback_incorrect: "It's true! Christy was the 574th Lightning Community Hero, recognized during a game on February 17, 2024. She donated the $50,000 to Sounding Joy and The Rotary Club of Tampa."
+            },
+            {
+                type: "multiple",
+                question: "How often do children's hearing aids typically need to be replaced?",
+                options: ["Every year", "Every 3 years", "Every 7 years", "They last a lifetime"],
+                correct: 1,
+                feedback_correct: "Right! Children's hearing aids need replacement about every 3 years as kids grow and technology advances. That's an ongoing cost many families can't afford.",
+                feedback_incorrect: "Every 3 years! As children grow and technology advances, hearing aids need regular replacement — making ongoing support essential for families in need."
+            },
+            {
+                type: "multiple",
+                question: "What is the name of Sounding Joy's annual gala?",
+                options: ["Sound of Hope Gala", "The Art of Hearing", "Hearing Hearts Ball", "The Joy of Sound"],
+                correct: 1,
+                feedback_correct: "Yes! The Art of Hearing gala combines art, music, and community to raise funds for children's hearing aids. The 2026 gala raised a record-breaking $168,876!",
+                feedback_incorrect: "It's The Art of Hearing! This annual gala combines art, music, and community to raise funds. The 2026 event raised a record-breaking $168,876!"
+            },
+            {
+                type: "multiple",
+                question: "How much can untreated hearing loss reduce a person's annual earning potential?",
+                options: ["$1,000 - $3,000", "$5,000 - $8,000", "$12,000 - $30,000", "$50,000+"],
+                correct: 2,
+                feedback_correct: "Correct! Untreated hearing loss can reduce earning potential by $12,000 to $30,000 per year. Providing hearing aids to children early sets them up for a lifetime of greater opportunity.",
+                feedback_incorrect: "It's $12,000 to $30,000 per year! That's why providing hearing aids to children early is an investment in their entire future."
+            },
+            {
+                type: "multiple",
+                question: "Which best describes Sounding Joy's mission?",
+                options: [
+                    "To fund research into curing childhood hearing loss",
+                    "To ignite joy by giving life-changing hearing aids, accessories, and services to children whose families can't afford them",
+                    "To provide free cochlear implant surgeries to children in need",
+                    "To train audiologists to work in underserved communities"
+                ],
+                correct: 1,
+                feedback_correct: "That's right! Sounding Joy's mission is to ignite joy by giving life-changing hearing aids, accessories, and services to children whose families can't afford them — opening doors to confidence, connection, and lifelong success.",
+                feedback_incorrect: "Sounding Joy's mission is to ignite joy by giving life-changing hearing aids, accessories, and services to children whose families can't afford them — opening doors to confidence, connection, and lifelong success."
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let answers = new Array(questions.length).fill(null);
+
+        function startQuiz() {
+            document.getElementById('startScreen').style.display = 'none';
+            document.getElementById('quizSection').style.display = 'block';
+            buildQuestions();
+            showQuestion(0);
+        }
+
+        function buildQuestions() {
+            const container = document.getElementById('questionsContainer');
+            questions.forEach((q, i) => {
+                const card = document.createElement('div');
+                card.className = 'question-card';
+                card.id = `question-${i}`;
+                const typeLabel = q.type === 'truefalse' ? 'True or False' : 'Multiple Choice';
+                let optionsHTML = q.options.map((opt, j) =>
+                    `<button class="option-btn" data-question="${i}" data-option="${j}" onclick="selectAnswer(${i}, ${j})">${q.type === 'multiple' ? String.fromCharCode(65 + j) + '. ' : ''}${opt}</button>`
+                ).join('');
+                card.innerHTML = `
+                    <span class="question-number">Question ${i + 1}</span>
+                    <span class="question-type">${typeLabel}</span>
+                    <p class="question-text">${q.question}</p>
+                    <div class="options">${optionsHTML}</div>
+                    <div class="feedback" id="feedback-${i}"></div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function showQuestion(index) {
+            document.querySelectorAll('.question-card').forEach(c => c.classList.remove('active'));
+            document.getElementById(`question-${index}`).classList.add('active');
+            document.getElementById('progressText').textContent = `Question ${index + 1} of ${questions.length}`;
+            document.getElementById('progressFill').style.width = `${((index) / questions.length) * 100}%`;
+            // Show back button if not on first question
+            document.getElementById('backBtn').style.display = index > 0 ? 'block' : 'none';
+            // Show next button if this question was already answered
+            if (answers[index] !== null) {
+                document.getElementById('nextBtn').style.display = 'block';
+                document.getElementById('nextBtn').textContent = index < questions.length - 1 ? 'Next Question' : 'See My Results!';
+            } else {
+                document.getElementById('nextBtn').style.display = 'none';
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function selectAnswer(qIndex, optIndex) {
+            const q = questions[qIndex];
+            const buttons = document.querySelectorAll(`[data-question="${qIndex}"]`);
+            const feedback = document.getElementById(`feedback-${qIndex}`);
+
+            // Reset previous selection if changing answer
+            buttons.forEach(btn => {
+                btn.classList.remove('correct', 'incorrect', 'selected');
+                btn.disabled = true;
+                const opt = parseInt(btn.dataset.option);
+                if (opt === q.correct) btn.classList.add('correct');
+                else if (opt === optIndex) btn.classList.add('incorrect');
+            });
+
+            const isCorrect = optIndex === q.correct;
+            if (isCorrect) {
+                feedback.className = 'feedback correct';
+                feedback.innerHTML = '&#10004; ' + q.feedback_correct;
+            } else {
+                feedback.className = 'feedback incorrect';
+                feedback.innerHTML = '&#10008; ' + q.feedback_incorrect;
+            }
+
+            answers[qIndex] = {
+                question: q.question,
+                yourAnswer: q.options[optIndex],
+                correctAnswer: q.options[q.correct],
+                isCorrect: isCorrect,
+                optIndex: optIndex
+            };
+
+            document.getElementById('nextBtn').style.display = 'block';
+            document.getElementById('nextBtn').textContent = currentQuestion < questions.length - 1 ? 'Next Question' : 'See My Results!';
+            setTimeout(() => { window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }); }, 400);
+        }
+
+        function resetQuestion(qIndex) {
+            const q = questions[qIndex];
+            const buttons = document.querySelectorAll(`[data-question="${qIndex}"]`);
+            const feedback = document.getElementById(`feedback-${qIndex}`);
+            buttons.forEach(btn => {
+                btn.disabled = false;
+                btn.classList.remove('correct', 'incorrect', 'selected');
+            });
+            feedback.className = 'feedback';
+            feedback.innerHTML = '';
+        }
+
+        function prevQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                resetQuestion(currentQuestion);
+                answers[currentQuestion] = null;
+                showQuestion(currentQuestion);
+            }
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (currentQuestion < questions.length) {
+                showQuestion(currentQuestion);
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            score = answers.filter(a => a && a.isCorrect).length;
+            document.getElementById('quizSection').style.display = 'none';
+            document.getElementById('resultsScreen').classList.add('active');
+            document.getElementById('scoreNumber').textContent = score;
+            document.getElementById('progressFill').style.width = '100%';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            let message, subtitle;
+            if (score === 10) {
+                message = "Perfect Score! You're a Hearing Health Champion!";
+                subtitle = "You know your stuff! Help us spread the word and give more children the gift of hearing.";
+            } else if (score >= 8) {
+                message = "Amazing! You really know your hearing facts!";
+                subtitle = "You're already an advocate. Imagine what we can do together for children who can't afford hearing aids.";
+            } else if (score >= 6) {
+                message = "Great job! You're more informed than most!";
+                subtitle = "Now that you know the facts, will you help us give a child the chance to hear?";
+            } else if (score >= 4) {
+                message = "Good effort! There's so much to learn!";
+                subtitle = "Hearing loss affects millions of children. Now you know — and knowing is the first step to making a difference.";
+            } else {
+                message = "Thanks for taking the quiz!";
+                subtitle = "Every person who learns about childhood hearing loss helps us get closer to our mission. Share this quiz and spread awareness!";
+            }
+
+            document.getElementById('scoreMessage').textContent = message;
+            document.getElementById('scoreSubtitle').textContent = subtitle;
+
+            let reviewHTML = '<h3>Answer Review</h3>';
+            answers.forEach((a, i) => {
+                reviewHTML += `
+                    <div class="review-item ${a.isCorrect ? '' : 'wrong'}">
+                        <div class="review-q">${i + 1}. ${a.question}</div>
+                        <div class="review-a">
+                            ${a.isCorrect
+                                ? `<span style="color:#2a9d8f;">&#10004; ${a.yourAnswer}</span>`
+                                : `Your answer: <span style="color:#e76f51;">${a.yourAnswer}</span> | Correct: <span style="color:#2a9d8f;">${a.correctAnswer}</span>`
+                            }
+                        </div>
+                    </div>
+                `;
+            });
+            document.getElementById('answerReview').innerHTML = reviewHTML;
+        }
+
+        function shareResults() {
+            const text = `I scored ${score}/10 on the Sounding Joy quiz! How much do you know about hearing loss and the kids who need our help? Take the quiz: ${window.location.href}`;
+            if (navigator.share) {
+                navigator.share({ title: 'Sounding Joy Quiz', text: text }).catch(() => {});
+            } else if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(() => {
+                    const toast = document.getElementById('shareToast');
+                    toast.style.display = 'block';
+                    setTimeout(() => { toast.style.display = 'none'; }, 3000);
+                });
+            }
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            answers = [];
+            document.getElementById('resultsScreen').classList.remove('active');
+            document.getElementById('questionsContainer').innerHTML = '';
+            document.getElementById('startScreen').style.display = 'block';
+            document.getElementById('quizSection').style.display = 'none';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
