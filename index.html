@@ -527,15 +527,17 @@
         }
 
         function shareResults() {
-            const text = `I scored ${score}/10 on the Sounding Joy quiz! How much do you know about hearing loss and the kids who need our help? Take the quiz: ${window.location.href}`;
+            const text = `I scored ${score}/10 on the Sounding Joy quiz! How much do you know about Sounding Joy? Take the quiz: ${window.location.href}`;
+            const toast = document.getElementById('shareToast');
+            toast.textContent = `Your score: ${score}/10 — copied to clipboard!`;
+            toast.style.display = 'block';
+            setTimeout(() => { toast.style.display = 'none'; }, 4000);
             if (navigator.share) {
-                navigator.share({ title: 'Sounding Joy Quiz', text: text }).catch(() => {});
-            } else if (navigator.clipboard) {
-                navigator.clipboard.writeText(text).then(() => {
-                    const toast = document.getElementById('shareToast');
-                    toast.style.display = 'block';
-                    setTimeout(() => { toast.style.display = 'none'; }, 3000);
+                navigator.share({ title: 'Sounding Joy Quiz', text: text }).catch(() => {
+                    if (navigator.clipboard) { navigator.clipboard.writeText(text); }
                 });
+            } else if (navigator.clipboard) {
+                navigator.clipboard.writeText(text);
             }
         }
 
