@@ -527,7 +527,7 @@
         }
 
         function shareResults() {
-            const text = `I scored ${score}/10 on the Sounding Joy quiz! Think you can beat me? Take the quiz: ${window.location.href}`;
+            const text = `I scored ${score}/10 — think you can beat me? Take the Sounding Joy quiz at ${window.location.href} and find out!`;
             const toast = document.getElementById('shareToast');
             toast.textContent = `Your score: ${score}/10 — copied to clipboard!`;
             toast.style.display = 'block';
